@@ -1,0 +1,42 @@
+services:
+  db:
+    image: mysql:8
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: medcare_clinic
+      # Required, no default — `docker compose up` will refuse to start
+      # until you set this, instead of silently falling back to a weak
+      # hardcoded password the way the previous version did.
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD in your .env}"
+    ports:
+      - "3306:3306"
+    volumes:
+      - medcare-db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: "mysql://root:${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD in your .env}@db:3306/medcare_clinic"
+      SESSION_SECRET: "${SESSION_SECRET:?set SESSION_SECRET in your .env, e.g. via: openssl rand -base64 32}"
+      SMTP_HOST: "${SMTP_HOST:-}"
+      SMTP_PORT: "${SMTP_PORT:-587}"
+      SMTP_USER: "${SMTP_USER:-}"
+      SMTP_PASS: "${SMTP_PASS:-}"
+      CLINIC_FROM_EMAIL: "${CLINIC_FROM_EMAIL:-no-reply@yourclinic.example}"
+      NOTIFY_OWNER_EMAIL: "${NOTIFY_OWNER_EMAIL:-}"
+
+volumes:
+  medcare-db-data:

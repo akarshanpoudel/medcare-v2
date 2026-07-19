@@ -1,0 +1,12 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+# Plain GET, no required input — see server/index.ts. The previous
+# tRPC-based health check required a mandatory `timestamp` param that a
+# bare health-check probe never supplied, which failed deploys.
+healthcheckPath = "/api/health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5
