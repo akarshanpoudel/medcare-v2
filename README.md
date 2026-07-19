@@ -6,7 +6,7 @@ password-protected admin panel.
 
 This is a ground-up rebuild of the original `medcare-clinic` project. Every
 item from the prior audit has been fixed and **verified**, not just
-rewritten — see [`AUDIT_FIXES.md`](./AUDIT_FIXES.md) for exactly what
+rewritten — see [`AUDIT.md`](./AUDIT_FIXES.md) for exactly what
 changed and how each fix was tested against a real MySQL database and a
 running server.
 
