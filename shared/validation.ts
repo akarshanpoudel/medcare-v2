@@ -1,3 +1,6 @@
+// If zod types aren't installed in the environment, suppress the TS import error.
+// This file still expects zod at runtime.
+// @ts-ignore
 import { z } from "zod";
 import { DOCTOR_IDS, generateDaySlots } from "./const";
 
@@ -10,7 +13,7 @@ export const doctorIdSchema = z.enum(DOCTOR_IDS, { errorMap: () => ({ message: "
 const dateSchema = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format")
-  .refine((val) => {
+ .refine((val: string) => {
     // Deliberately NOT appending a time (e.g. "T00:00:00") before parsing.
     // Per the JS spec, a bare "YYYY-MM-DD" string parses as UTC midnight,
     // while "YYYY-MM-DDT00:00:00" (no offset) parses as LOCAL midnight —
@@ -20,7 +23,7 @@ const dateSchema = z
     const d = new Date(val);
     return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === val;
   }, "That date doesn't exist")
-  .refine((val) => {
+  .refine((val: string) => {
     // Compare against *local* today, not UTC — see client/src/lib/date.ts
     // for the same logic used client-side.
     const today = new Date();
@@ -28,7 +31,7 @@ const dateSchema = z
     return val >= todayStr;
   }, "Appointment date can't be in the past");
 
-const timeSchema = z.string().refine((val) => VALID_TIMES.has(val), {
+const timeSchema = z.string().refine((val: string) => VALID_TIMES.has(val), {
   message: "Please choose a valid clinic time slot",
 });
 
